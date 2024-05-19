@@ -1,71 +1,48 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import csv
 import pickle
-from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 
-def create_data(n, a, b, c, noise):
-    x = np.random.rand(n, 1)
-    y = a * x**2 + b * x + c + np.random.randn(n, 1) * noise
-    return x, y
+# Load the pre-trained model
+@st.cache(allow_output_mutation=True)
+def load_model(model_path):
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
+    return model
 
-def save_data(x, y, filename):
-    with open(filename, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['x', 'y'])
-        for i in range(len(x)):
-            writer.writerow([x[i][0], y[i][0]])
-
-def plot_data(x, y):
+# Plot predictions
+def plot_predictions(x, y_pred):
     plt.figure()
-    plt.plot(x, y, 'b.', label='Data Points')
+    plt.plot(x, y_pred, 'r-', label='Predicted Polynomial Regression')
     plt.xlabel('x')
     plt.ylabel('y')
+    plt.title('Regression Model Predictions')
     plt.legend()
     plt.grid(True)
-    return plt
+    plt.show()
 
 def main():
-    st.title('Quadratic Data Model with Streamlit')
-    n = st.sidebar.slider('Number of points', 50, 500, 100)
-    a = st.sidebar.number_input('Coefficient a', value=3.0)
-    b = st.sidebar.number_input('Coefficient b', value=0.0)
-    c = st.sidebar.number_input('Coefficient c', value=0.25)
-    noise = st.sidebar.slider('Noise level', 0.0, 1.0, 0.1)
+    st.title('Quadratic Regression Model Visualization')
 
-    output = 'data.csv'
-    model_output = 'model.pkl'
-
-    x, y = create_data(n, a, b, c, noise)
-    save_data(x, y, output)
-
-    if st.button('Plot Data'):
-        fig = plot_data(x, y)
-        st.pyplot(fig)
-
+    model = load_model('model.pkl')  # Adjust path as needed
     poly_features = PolynomialFeatures(degree=2)
-    x_poly = poly_features.fit_transform(x)
-    model = LinearRegression()
-    model.fit(x_poly, y)
+
+    # Slider for user to generate new data points
     x_new = np.linspace(0, 1, 100).reshape(-1, 1)
     x_new_poly = poly_features.transform(x_new)
-    y_pred = model.predict(x_new_poly)
 
-    if st.button('Show Regression Model'):
-        plt.figure(figsize=(8, 6))
-        plt.plot(x, y, 'b.', label='Data Points')
-        plt.plot(x_new, y_pred, 'r-', label='Regression Line')
-        plt.title('Fitted Regression Model')
-        plt.xlabel('x')
-        plt.ylabel('y')
-        plt.legend()
-        plt.grid(True)
-        st.pyplot(plt)
-
-    with open(model_output, 'wb') as f:
-        pickle.dump(model, f)
+    # Display the model predictions
+    if st.button('Show Predictions'):
+        y_pred = model.predict(x_new_poly)
+        fig, ax = plt.subplots()
+        ax.plot(x_new, y_pred, 'r-', label='Predicted Polynomial Regression')
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_title('Regression Model Predictions')
+        ax.legend()
+        ax.grid(True)
+        st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
