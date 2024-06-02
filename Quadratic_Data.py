@@ -30,7 +30,7 @@ def plot_predictions(x, y_pred):
 
 def main():
     st.title('Quadratic Regression Model Visualization')
-    st.markdown('This app demonstrates a simple quadratic regression model. just for testing purposes.gfhtfyjgt')
+    st.markdown('This app demonstrates a simple quadratic regression model. just for testing purposes.')
 
     model = load_model('model.pkl')  # Adjust path as needed
     x, y = load_data('data.csv')     # Adjust path as needed
