@@ -1,1 +1,1 @@
-web: gunicorn app:Quadratic_Data.py --bind
+web: streamlit run app.py --server.port $PORT
